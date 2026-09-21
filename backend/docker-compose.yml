@@ -1,0 +1,14 @@
+services:
+  db:
+    image: ankane/pgvector:latest
+    environment:
+      POSTGRES_USER: awaaz_admin
+      POSTGRES_PASSWORD: supersecretpassword
+      POSTGRES_DB: awaaz_db
+    ports:
+      - "5444:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
