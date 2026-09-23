@@ -5,6 +5,8 @@ from database import init_db, get_db
 from models import Alert, User
 from schemas import AlertCreate, UserCreate
 from ai_engine import get_embedding
+from schemas import UserCreate, OTPRequest, OTPVerify
+from fastapi import HTTPException
 
 app = FastAPI(title="AWAAZ Backend", description="Amplifying Welfare Across All Zones")
 
@@ -131,3 +133,39 @@ def get_gov_summary(zone: str, db: Session = Depends(get_db)):
         "summary": mock_summary,
         "top_alerts": top_alerts
     }
+
+@app.post("/auth/register")
+def register_user(user: UserCreate, db: Session = Depends(get_db)):
+    existing = db.query(User).filter(User.phone_number == user.phone_number).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Phone number already registered")
+    
+    new_user = User(
+        phone_number=user.phone_number,
+        username=user.username,
+        role=user.role,
+        state=user.state,
+        city=user.city
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
+
+@app.post("/auth/request-otp")
+def request_otp(payload: OTPRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.phone_number == payload.phone_number).first()
+    if not user:
+        return {"status": "unregistered", "message": "Phone number not found. Please register."}
+    return {"status": "success", "message": "OTP sent. (Hint: use 1234)"}
+
+@app.post("/auth/verify-otp")
+def verify_otp(payload: OTPVerify, db: Session = Depends(get_db)):
+    if payload.otp != "1234":
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+        
+    user = db.query(User).filter(User.phone_number == payload.phone_number).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    return user

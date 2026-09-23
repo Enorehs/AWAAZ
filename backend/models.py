@@ -1,12 +1,18 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey
 from pgvector.sqlalchemy import Vector
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
+from sqlalchemy.orm import relationship
 from database import Base
-
+import datetime
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, index=True)
+    phone_number = Column(String, unique=True, index=True)
+    username = Column(String, unique=True, index=True)
+    role = Column(String, default="citizen") # 'citizen' or 'gov'
     state = Column(String)
+    city = Column(String)
+    
+    alerts = relationship("Alert", back_populates="author")
 
 class Alert(Base):
     __tablename__ = "alerts"

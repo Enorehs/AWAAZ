@@ -9,5 +9,15 @@ class AlertCreate(BaseModel):
     media_url: Optional[str] = None
 
 class UserCreate(BaseModel):
+    phone_number: str
     username: str
+    role: str = "citizen"
     state: str
+    city: str
+
+class OTPRequest(BaseModel):
+    phone_number: str
+
+class OTPVerify(BaseModel):
+    phone_number: str
+    otp: str
