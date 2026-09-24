@@ -18,6 +18,7 @@ class Alert(Base):
     __tablename__ = "alerts"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
+    author = relationship("User", back_populates="alerts")
     zone = Column(String)
     title = Column(String)
     description = Column(Text)

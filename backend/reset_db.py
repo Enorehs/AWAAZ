@@ -1,9 +1,14 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from database import Base
 import models 
 
-EXTERNAL_URL = "postgresql://awaaz_db_lo6t_user:LOsZs7O5miFI1GCO5sN0iK99iaNFkk7v@dpg-daokkn6gekts73cllep0-a.singapore-postgres.render.com/awaaz_db_lo6t"
+EXTERNAL_URL = "postgresql://postgres.ahjalsthkdzegatjybke:mjbZT9yl3h8InVYL@aws-0-ap-south-1.pooler.supabase.com:6543/postgres"
 engine = create_engine(EXTERNAL_URL)
+
+print("Enabling AI Vector Extension on Supabase...")
+with engine.connect() as conn:
+    conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+    conn.commit()
 
 print("Wiping old schema...")
 Base.metadata.drop_all(bind=engine)
